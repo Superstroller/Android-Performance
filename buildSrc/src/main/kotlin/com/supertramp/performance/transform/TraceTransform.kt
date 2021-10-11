@@ -5,6 +5,7 @@ import com.android.build.api.variant.VariantInfo
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.android.utils.FileUtils
 import com.supertramp.performance.ext.Systrace
+import com.supertramp.performance.transform.asm.MethodCollector
 import com.supertramp.performance.transform.asm.SysTraceVisitor
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.compress.utils.IOUtils
@@ -41,7 +42,6 @@ class TraceTransform(private val systrace: Systrace) : Transform() {
     }
 
     override fun transform(transformInvocation: TransformInvocation?) {
-        println("transform_start")
         transformInvocation?.outputProvider?.let { outputProvider ->
             transformInvocation?.inputs?.forEach { transformInput ->
                 transformInput.jarInputs?.forEach { jarInput ->
@@ -61,6 +61,7 @@ class TraceTransform(private val systrace: Systrace) : Transform() {
             files.forEach { file ->
                 if (isClassLegal(file.name)) {
                     val classReader = ClassReader(file.readBytes())
+                    MethodCollector.handleMethodDepth(classReader)
                     val classWriter = ClassWriter(classReader, ClassWriter.COMPUTE_MAXS)
                     val adapter = SysTraceVisitor(classWriter, systrace)
                     classReader.accept(adapter, ClassReader.EXPAND_FRAMES)
@@ -101,6 +102,7 @@ class TraceTransform(private val systrace: Systrace) : Transform() {
                 if (isClassLegal(entryName)) {
                     jarOutputStream.putNextEntry(zipEntry)
                     val classReader = ClassReader(IOUtils.toByteArray(inputStream))
+                    MethodCollector.handleMethodDepth(classReader)
                     val classWriter = ClassWriter(classReader, ClassWriter.COMPUTE_MAXS)
                     val cv = SysTraceVisitor(classWriter, systrace)
                     classReader.accept(cv, ClassReader.EXPAND_FRAMES)

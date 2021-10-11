@@ -1,0 +1,36 @@
+apply plugin : 'maven'
+
+def group = 'com.supertramp.plugin'
+def version = '1.0'
+def artifactId = 'performance'
+
+//uploadArchives {
+//    repositories.mavenDeployer {
+//        repository(url : uri('../repo'))
+//        pom.groupId = '$project.group'
+//        pom.artifactId = '$artifactId'
+//        pom.version = '$project.version'
+//    }
+//}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: 'https://packages.aliyun.com/maven/repository/2144355-release-anxxrx/') {
+                authentication(
+                        userName: '615fdcfc9b9269d05014a2ad',
+                        password: 'KS)701oIeT6]'
+                )
+            }
+            snapshotRepository(url: 'https://packages.aliyun.com/maven/repository/2144355-snapshot-pczTqP/') {
+                authentication(
+                        userName: '615fdcfc9b9269d05014a2ad',
+                        password: 'KS)701oIeT6]'
+                )
+            }
+            pom.version = version
+            pom.artifactId = artifactId
+            pom.groupId = group
+        }
+    }
+}
