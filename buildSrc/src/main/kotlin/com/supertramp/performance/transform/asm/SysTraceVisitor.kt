@@ -49,7 +49,7 @@ class SysTraceVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVisit
                 override fun onMethodEnter() {
                     var sectionName = "Android-Trace"
                     name?.let { methodName ->
-                        sectionName = methodName
+                        sectionName = "${className}#${methodName}"
                         var length = sectionName.length
                         if (length > 127) {//atrace Tag长度限制
                             sectionName = sectionName.substring(length - 127)

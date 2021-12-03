@@ -9,3 +9,11 @@ fun traceBegin(name : String) {
 fun traceEnd() {
     Trace.endSection()
 }
+
+fun onlineTraceBegin(name : String) {
+
+}
+
+fun onlineTraceEnd() {
+
+}

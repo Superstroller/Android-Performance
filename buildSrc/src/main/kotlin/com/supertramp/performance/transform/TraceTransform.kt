@@ -38,11 +38,12 @@ class TraceTransform(private val systrace: Systrace) : Transform() {
     }
 
     override fun isIncremental(): Boolean {
-        return false
+        return true
     }
 
     override fun transform(transformInvocation: TransformInvocation?) {
         transformInvocation?.outputProvider?.let { outputProvider ->
+            if (!isIncremental) outputProvider.deleteAll()
             transformInvocation?.inputs?.forEach { transformInput ->
                 transformInput.jarInputs?.forEach { jarInput ->
                     handleJarClass(jarInput, outputProvider)

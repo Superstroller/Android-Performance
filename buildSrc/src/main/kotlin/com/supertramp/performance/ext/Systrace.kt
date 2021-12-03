@@ -3,6 +3,7 @@ package com.supertramp.performance.ext
 open class Systrace {
 
     var systraceOn : Boolean = false // systrace是否打开
+    var online : Boolean = false //是否线上环境
     var traceClass : String = ""
     var enterMethod : String = ""
     var enterMethodDes : String = ""
