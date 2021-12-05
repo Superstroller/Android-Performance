@@ -43,8 +43,10 @@ class TraceTransform(private val systrace: Systrace) : Transform() {
 
     override fun transform(transformInvocation: TransformInvocation?) {
         transformInvocation?.outputProvider?.let { outputProvider ->
-            if (!isIncremental) outputProvider.deleteAll()
-            transformInvocation?.inputs?.forEach { transformInput ->
+            println("isIncremental : ${transformInvocation.isIncremental}")
+//            val isIncremental = transformInvocation.isIncremental && isIncremental
+//            if (!isIncremental) outputProvider.deleteAll()
+            transformInvocation.inputs?.forEach { transformInput ->
                 transformInput.jarInputs?.forEach { jarInput ->
                     handleJarClass(jarInput, outputProvider)
                 }
@@ -59,6 +61,7 @@ class TraceTransform(private val systrace: Systrace) : Transform() {
         if (input.file.isDirectory) {
             val files = ArrayList<File>()
             eachFileRecurse(input.file, files)
+            println("input_dir : ${input.file.absolutePath}")
             files.forEach { file ->
                 if (isClassLegal(file.name)) {
                     val classReader = ClassReader(file.readBytes())
@@ -75,6 +78,7 @@ class TraceTransform(private val systrace: Systrace) : Transform() {
         }
         val dst = outputProvider.getContentLocation(input.name, input.contentTypes, input.scopes, Format.DIRECTORY)
         FileUtils.copyDirectory(input.file, dst)
+        println("output_dir : ${dst.absolutePath}")
     }
 
     private fun handleJarClass(input : JarInput, outputProvider: TransformOutputProvider) {
@@ -85,6 +89,7 @@ class TraceTransform(private val systrace: Systrace) : Transform() {
         }
 
         var tmpFile : File? = null
+        println("input_jar : ${input.file.absolutePath}")
         if (input.file.absolutePath.endsWith(".jar")) {
             val jarFile = JarFile(input.file)
             val enumeration = jarFile.entries()
@@ -129,6 +134,7 @@ class TraceTransform(private val systrace: Systrace) : Transform() {
             FileUtils.copyFile(tmpFile, dst)
             tmpFile.delete()
         }
+        println("output_jar : ${dst.absolutePath}")
     }
 
     //class需要插入
