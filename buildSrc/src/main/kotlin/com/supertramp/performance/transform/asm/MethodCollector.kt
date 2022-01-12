@@ -93,10 +93,10 @@ object MethodCollector {
         while (iterator.hasNext()) {
             val insnNode = iterator.next()
             val opcode = insnNode.opcode
-            return if (-1 == opcode) {
+            if (-1 == opcode) {
                 continue
             } else {
-                false
+                return false
             }
         }
         return true

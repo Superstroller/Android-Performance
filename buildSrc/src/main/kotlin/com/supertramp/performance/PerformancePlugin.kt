@@ -5,6 +5,7 @@ import com.supertramp.performance.ext.Systrace
 import com.supertramp.performance.transform.TraceTransform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import java.io.File
 
 class PerformancePlugin : Plugin<Project> {
 
@@ -15,6 +16,7 @@ class PerformancePlugin : Plugin<Project> {
     //字节码插桩，Systrace采集统计
     private fun handleSystrace(project: Project) {
         val systrace = project.extensions.create("systrace", Systrace::class.java)
+        systrace.output = project.buildDir.absolutePath + File.separator + "trace"
         val androidExt = project.extensions.getByName("android") as AppExtension?
         androidExt?.registerTransform(TraceTransform(systrace))
     }

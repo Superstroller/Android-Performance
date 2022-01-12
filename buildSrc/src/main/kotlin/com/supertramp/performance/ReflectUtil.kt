@@ -7,9 +7,8 @@ import java.lang.reflect.Method
 object ReflectUtil {
 
     @Throws(NoSuchFieldException::class, ClassNotFoundException::class)
-    fun getDeclaredFieldRecursive(clazz: Any, fieldName: String?): Field {
-        var realClazz: Class<*>? = null
-        realClazz = when (clazz) {
+    fun getDeclaredFieldRecursive(clazz: Any, fieldName: String): Field {
+        val realClazz = when (clazz) {
             is String -> {
                 Class.forName(clazz)
             }
@@ -23,14 +22,14 @@ object ReflectUtil {
         var currClazz = realClazz
         while (true) {
             try {
-                val field = currClazz!!.getDeclaredField(fieldName)
+                val field = currClazz.getDeclaredField(fieldName)
                 field.isAccessible = true
                 return field
             } catch (e: NoSuchFieldException) {
                 if (currClazz == Any::class.java) {
                     throw e
                 }
-                currClazz = currClazz!!.superclass
+                currClazz = currClazz.superclass
             }
         }
     }

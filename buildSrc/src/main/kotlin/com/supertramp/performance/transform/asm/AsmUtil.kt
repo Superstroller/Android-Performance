@@ -1,6 +1,11 @@
 package com.supertramp.performance.transform.asm
 
+import com.supertramp.performance.ext.Systrace
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
+import java.io.File
+import java.io.FileOutputStream
 
 object AsmUtil {
 
@@ -18,5 +23,17 @@ object AsmUtil {
     fun isJDKClass(className: String) = className.startsWith("java/") ||
             className.startsWith("jdk/") ||
             className.startsWith("javax/")
+
+    fun transformClass(systrace : Systrace, input : File, output : File) {
+        val classReader = ClassReader(input.readBytes())
+        MethodCollector.handleMethodDepth(classReader)
+        val classWriter = ClassWriter(classReader, ClassWriter.COMPUTE_MAXS)
+        val adapter = SysTraceVisitor(classWriter, systrace)
+        classReader.accept(adapter, ClassReader.EXPAND_FRAMES)
+        val codes = classWriter.toByteArray()
+        val fos = FileOutputStream(output)
+        fos.write(codes)
+        fos.close()
+    }
 
 }
