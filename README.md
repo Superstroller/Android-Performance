@@ -1,2 +1,4 @@
 # Android-Performance
-Android性能优化实践
+Android字节码插桩
+使用AGP Transform API拿到工程编译后的所有Class文件
+使用ASM对Class字节码文件进行变换，插入trace点
