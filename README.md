@@ -5,9 +5,12 @@
 
 ### 使用方法
 在根目录下的build.gradle中配置插件
+```
 implementation "com.supertramp.plugin:performance:1.0"
+```
 
 在app module下的build.gradle文件下：
+```
 apply plugin : 'performance'
 systrace {
     systraceOn = true
@@ -17,3 +20,4 @@ systrace {
     exitMethod = "traceEnd"
     exitMethodDes = "()V"
 }
+```
