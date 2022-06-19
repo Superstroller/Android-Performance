@@ -1,36 +1,42 @@
 apply plugin : 'maven'
 
 def group = 'com.supertramp.plugin'
-def version = '1.1'
+def version = '1.7'
 def artifactId = 'performance'
 
-//uploadArchives {
-//    repositories.mavenDeployer {
-//        repository(url : uri('../repo'))
-//        pom.groupId = '$project.group'
-//        pom.artifactId = '$artifactId'
-//        pom.version = '$project.version'
-//    }
-//}
+def isPublishLocalMaven = true
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: 'https://packages.aliyun.com/maven/repository/2144355-release-anxxrx/') {
-                authentication(
-                        userName: '615fdcfc9b9269d05014a2ad',
-                        password: 'KS)701oIeT6]'
-                )
-            }
-            snapshotRepository(url: 'https://packages.aliyun.com/maven/repository/2144355-snapshot-pczTqP/') {
-                authentication(
-                        userName: '615fdcfc9b9269d05014a2ad',
-                        password: 'KS)701oIeT6]'
-                )
-            }
-            pom.version = version
-            pom.artifactId = artifactId
+if (isPublishLocalMaven) {
+    def localMavenRepo = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+    uploadArchives {
+        repositories.mavenDeployer {
+            repository(url : localMavenRepo)
             pom.groupId = group
+            pom.artifactId = artifactId
+            pom.version = version
+        }
+    }
+}
+else {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: 'https://packages.aliyun.com/maven/repository/2144355-release-anxxrx/') {
+                    authentication(
+                            userName: '615fdcfc9b9269d05014a2ad',
+                            password: 'KS)701oIeT6]'
+                    )
+                }
+                snapshotRepository(url: 'https://packages.aliyun.com/maven/repository/2144355-snapshot-pczTqP/') {
+                    authentication(
+                            userName: '615fdcfc9b9269d05014a2ad',
+                            password: 'KS)701oIeT6]'
+                    )
+                }
+                pom.version = version
+                pom.artifactId = artifactId
+                pom.groupId = group
+            }
         }
     }
 }
