@@ -1,13 +1,11 @@
 package com.supertramp.performance.transform.asm
 
 import com.supertramp.performance.ext.Systrace
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.*
 import org.objectweb.asm.Opcodes.ASM9
 import org.objectweb.asm.commons.AdviceAdapter
 
-class SysTraceVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVisitor(ASM9, writer) {
+class CustomClassVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVisitor(ASM9, writer) {
 
     private var isABSClass = false
     private var isKotlinClass = false
@@ -46,6 +44,8 @@ class SysTraceVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVisit
             var methodVisitor = cv.visitMethod(access, name, descriptor, signature, exceptions)
             methodVisitor = object : AdviceAdapter(ASM9, methodVisitor, access, name, descriptor) {
 
+                private var mHandlerLabel : Label? = null
+
                 override fun onMethodEnter() {
                     var sectionName = "Android-Trace"
                     name?.let { methodName ->
@@ -62,9 +62,28 @@ class SysTraceVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVisit
                 override fun onMethodExit(opcode: Int) {
                     mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, systrace.exitMethod, systrace.exitMethodDes, false)
                 }
+
+                override fun visitTryCatchBlock(
+                    start: Label?,
+                    end: Label?,
+                    handler: Label?,
+                    type: String?
+                ) {
+                    super.visitTryCatchBlock(start, end, handler, type)
+                    mHandlerLabel = handler
+                }
+
+                override fun visitLabel(label: Label?) {
+                    super.visitLabel(label)
+                    if (mHandlerLabel != null && mHandlerLabel == label) {
+                        mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, "catchIn", systrace.exitMethodDes, false)
+                    }
+                }
+
             }
             return methodVisitor
         }
+
     }
 
 }

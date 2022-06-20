@@ -8,7 +8,7 @@ import com.supertramp.performance.FileUtil
 import com.supertramp.performance.ext.Systrace
 import com.supertramp.performance.transform.asm.AsmUtil
 import com.supertramp.performance.transform.asm.MethodCollector
-import com.supertramp.performance.transform.asm.SysTraceVisitor
+import com.supertramp.performance.transform.asm.CustomClassVisitor
 import org.apache.commons.compress.utils.IOUtils
 import org.gradle.internal.hash.Hashing
 import org.objectweb.asm.ClassReader
@@ -145,7 +145,7 @@ class InputHandler(var systrace : Systrace) {
                     val classReader = ClassReader(IOUtils.toByteArray(inputStream))
                     MethodCollector.handleMethodDepth(classReader)
                     val classWriter = ClassWriter(classReader, ClassWriter.COMPUTE_MAXS)
-                    val cv = SysTraceVisitor(classWriter, systrace)
+                    val cv = CustomClassVisitor(classWriter, systrace)
                     classReader.accept(cv, ClassReader.EXPAND_FRAMES)
                     val codes = classWriter.toByteArray()
                     jarOutputStream.write(codes)

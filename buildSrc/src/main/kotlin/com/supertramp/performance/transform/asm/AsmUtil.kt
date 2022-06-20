@@ -28,7 +28,7 @@ object AsmUtil {
         val classReader = ClassReader(input.readBytes())
         MethodCollector.handleMethodDepth(classReader)
         val classWriter = ClassWriter(classReader, ClassWriter.COMPUTE_MAXS)
-        val adapter = SysTraceVisitor(classWriter, systrace)
+        val adapter = CustomClassVisitor(classWriter, systrace)
         classReader.accept(adapter, ClassReader.EXPAND_FRAMES)
         val codes = classWriter.toByteArray()
         val fos = FileOutputStream(output)
