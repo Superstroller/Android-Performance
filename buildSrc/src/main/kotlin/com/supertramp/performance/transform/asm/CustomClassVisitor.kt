@@ -47,11 +47,11 @@ class CustomClassVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVi
             var methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions)
             methodVisitor = object : AdviceAdapter(ASM9, methodVisitor, access, name, descriptor) {
 
+                private var sectionName = "Android-Trace"
                 private var mHandlerLabel : Label? = null
 
                 override fun onMethodEnter() {
                     if (isContinuationImpl) return
-                    var sectionName = "Android-Trace"
                     name?.let { methodName ->
                         sectionName = "${className}#${methodName}"
                         var length = sectionName.length
@@ -85,7 +85,8 @@ class CustomClassVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVi
                             mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, systrace.exitMethod, systrace.exitMethodDes, false)
                         }
                         else {
-                            mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, "catchIn", systrace.exitMethodDes, false)
+                            mv.visitLdcInsn(sectionName)
+                            mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, "catchIn", systrace.enterMethodDes, false)
                         }
                     }
                 }

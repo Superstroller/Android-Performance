@@ -1,7 +1,7 @@
 apply plugin : 'maven'
 
 def group = 'com.supertramp.plugin'
-def version = '1.3'
+def version = '2.5'
 def artifactId = 'performance'
 
 def isPublishLocalMaven = true

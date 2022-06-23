@@ -1,55 +1,52 @@
 package com.supertramp.performance
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
-import android.widget.Toast
+import kotlinx.coroutines.*
 
 class MainActivity : Activity() {
+
+    private val applicationScope = CoroutineScope(SupervisorJob())
+    private var mJob : Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<TextView>(R.id.tv_button_01)?.setOnClickListener {
-            Thread.sleep(500)
-            Toast.makeText(this, "Hello world", Toast.LENGTH_SHORT).show()
+            mJob = applicationScope.launch(Dispatchers.Main) {
+                delay(10000)
+            }
         }
         findViewById<TextView>(R.id.tv_button_02)?.setOnClickListener {
+            //mJob?.cancel()
             catchException()
         }
-        findViewById<TextView>(R.id.tv_button_03)?.setOnClickListener {
-            startActivity(Intent(this, BActivity::class.java))
-        }
     }
 
-    private fun catchException() {
+    fun catchException() {
         try {
-            throwException()
-        }catch (e: Exception){}
+            Thread.sleep(200)
+            throwException1()
+        }catch (e : Exception) {}
     }
 
-    private fun throwException() {
+    fun throwException1() {
         Thread.sleep(200)
-        throwException01()
+        throwException2()
     }
 
-    private fun throwException01() {
+    fun throwException2() {
         Thread.sleep(200)
-        throwException02()
+        throwException3()
     }
 
-    private fun throwException02() {
-        Thread.sleep(200)
-        throwException03()
-    }
-
-    private fun throwException03() {
+    fun throwException3() {
         Thread.sleep(200)
         error()
     }
 
-    private fun error() {
+    fun error() {
         throw NullPointerException()
     }
 
