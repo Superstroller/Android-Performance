@@ -11,6 +11,8 @@ class CustomClassVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVi
     private var isKotlinClass = false
     private var isJDKClass = false
     private var className : String? = null
+    //协程挂起和恢复调度类，协程取消抛出的异常会在该类中catch，需要在这里处理以解决方法不闭合问题
+    private var isContinuationImpl = false
 
     override fun visit(
         version: Int,
@@ -26,6 +28,7 @@ class CustomClassVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVi
             isKotlinClass = AsmUtil.isKotlinClass(name)
             isJDKClass = AsmUtil.isJDKClass(name)
         }
+        isContinuationImpl = (name == "kotlin/coroutines/jvm/internal/BaseContinuationImpl")
         className = name
     }
 
@@ -37,16 +40,17 @@ class CustomClassVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVi
         signature: String?,
         exceptions: Array<out String>?
     ): MethodVisitor {
-        if (isABSClass || isJDKClass || isKotlinClass || AsmUtil.isConstruct(name) || MethodCollector.isIgnoreMethod(className, name, descriptor)) {
+        if ((isABSClass && !isContinuationImpl) || isJDKClass || (isKotlinClass && !isContinuationImpl) || AsmUtil.isConstruct(name) || MethodCollector.isIgnoreMethod(className, name, descriptor)) {
             return super.visitMethod(access, name, descriptor, signature, exceptions)
         }
         else {
-            var methodVisitor = cv.visitMethod(access, name, descriptor, signature, exceptions)
+            var methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions)
             methodVisitor = object : AdviceAdapter(ASM9, methodVisitor, access, name, descriptor) {
 
                 private var mHandlerLabel : Label? = null
 
                 override fun onMethodEnter() {
+                    if (isContinuationImpl) return
                     var sectionName = "Android-Trace"
                     name?.let { methodName ->
                         sectionName = "${className}#${methodName}"
@@ -60,6 +64,7 @@ class CustomClassVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVi
                 }
 
                 override fun onMethodExit(opcode: Int) {
+                    if (isContinuationImpl) return
                     mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, systrace.exitMethod, systrace.exitMethodDes, false)
                 }
 
@@ -76,7 +81,12 @@ class CustomClassVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVi
                 override fun visitLabel(label: Label?) {
                     super.visitLabel(label)
                     if (mHandlerLabel != null && mHandlerLabel == label) {
-                        mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, "catchIn", systrace.exitMethodDes, false)
+                        if (isContinuationImpl) {
+                            mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, systrace.exitMethod, systrace.exitMethodDes, false)
+                        }
+                        else {
+                            mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, "catchIn", systrace.exitMethodDes, false)
+                        }
                     }
                 }
 
