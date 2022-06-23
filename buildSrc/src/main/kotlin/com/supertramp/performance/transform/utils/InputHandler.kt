@@ -161,6 +161,7 @@ class InputHandler(var systrace : Systrace) {
 
             jarOutputStream.close()
             jarFile.close()
+            FileUtil.replaceFile(input, outputJar, "file")
         }
     }
 
