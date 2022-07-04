@@ -1,3 +1,5 @@
 rootProject.name = "Android-Performance"
 include ':app'
 include ':trace'
+include ':memory'
+include ':xhook'
