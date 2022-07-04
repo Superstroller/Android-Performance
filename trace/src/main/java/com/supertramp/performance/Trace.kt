@@ -7,6 +7,7 @@ import android.util.Log
 private var beginCount = 0
 private var beginNames = arrayOfNulls<String>(10)
 private var mainThreadId = 0L
+var enableLog = false
 
 fun traceBegin(name : String) {
     if (mainThreadId == 0L && Looper.myLooper() == Looper.getMainLooper()) {
@@ -20,18 +21,24 @@ fun traceBegin(name : String) {
     }
     beginCount ++
     Trace.beginSection(name)
-    //Log.i("atrace b", "$beginCount $name")
+    if (enableLog) {
+        Log.i("atrace b", "$beginCount $name")
+    }
 }
 
 fun traceEnd() {
     if (mainThreadId == Thread.currentThread().id) {
-//        if (beginCount <= 0) {
-//            return
-//        }
+        if (beginCount <= 0) {
+            return
+        }
         Trace.endSection()
         beginCount --
-        beginNames[beginCount] = null
-        //Log.i("atrace e", "$beginCount")
+        if (beginCount < 10) {
+            beginNames[beginCount] = null
+        }
+        if (enableLog) {
+            Log.i("atrace e", "$beginCount")
+        }
     }
 }
 

@@ -86,7 +86,7 @@ class CustomClassVisitor(writer : ClassWriter, val systrace: Systrace) : ClassVi
                         }
                         else {
                             mv.visitLdcInsn(sectionName)
-                            mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, "catchIn", systrace.enterMethodDes, false)
+                            mv.visitMethodInsn(INVOKESTATIC, systrace.traceClass, systrace.catchMethod, systrace.catchMethodDes, false)
                         }
                     }
                 }

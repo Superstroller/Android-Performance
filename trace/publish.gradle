@@ -1,6 +1,6 @@
 apply plugin : 'maven'
 
-def group = 'com.supertramp.plugin'
+def group = 'com.supertramp.performance'
 def version = '1.0.0'
 def artifactId = 'trace'
 
@@ -40,8 +40,3 @@ else {
         }
     }
 }
-
-/**
- * Github 推送密钥 ： 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
- *
- **/

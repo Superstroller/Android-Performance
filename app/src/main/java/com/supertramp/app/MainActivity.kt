@@ -1,4 +1,4 @@
-package com.supertramp.performance
+package com.supertramp.app
 
 import android.app.Activity
 import android.os.Bundle
